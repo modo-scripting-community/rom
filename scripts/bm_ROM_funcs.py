@@ -22,18 +22,25 @@ def restoreSel(myPrevSelected):
         lx.eval("select.subItem %s add" % id)
 
 #check if there is a group in the ST named "ROM"
-def ccRomGroup ():
+def ccGroup (groupName):
     try:
-        romID = lx.eval('query sceneservice item.ID ? {ROM}')
+        romID = lx.eval('query sceneservice item.ID ? {%s}'%groupName)
+        return romID
     except:
         lx.eval('select.drop item')
         lx.eval('shader.create mask')
         renderID = lx.eval('query sceneservice polyRender.ID ? 0')
         lx.eval('texture.parent %s -1'%renderID)
-        lx.eval('item.name ROM')
-        lx.eval('item.editorColor green')
+        lx.eval('item.name {%s}'%groupName)
+        if(groupName == 'ROM'):
+            lx.eval('item.editorColor green')
+        if(groupName == 'ROMcomp'):
+            lx.eval('item.editorColor blue')
+        if(groupName == 'ROMutils'):
+            lx.eval('item.editorColor purple')
         romID = lx.eval('query sceneservice selection ? mask')
-        lx.out('--- ROM mask created! ---')
+        lx.out('--- %s mask created! ---'%groupName)
+        return romID
 
 #check if mask in ROM group exists
 def checkMaskInRom (maskID):
@@ -105,7 +112,16 @@ def checkRoInGroup(maskID, roType):
     return roExists
 
 #create a renderoutput and color it in the ST
-editorColors = { 'shade.alpha' : 'white' }
+editorColors = { 'shade.alpha' : ('_Alpha','white'),
+    'shade.diffuse' : ('_Diff','blue'),
+    'shade.transparency' : ('_Tran','blue'),
+    'shade.reflection' : ('_Refl','blue'),
+    'shade.specular' : ('_Spec','blue'),
+    'shade.subsurface' : ('_Subs','blue'),
+    'shade.luminosity' : ('_Lumi','blue'),
+    'shade.normal' : ('_Norm','purple'),
+    'depth' : ('_zDep','purple'),
+    'occl.ambient' : ('_AO','purple')}
 def createRoInGroup(maskID, roType):
     lx.eval('select.item %s'%maskID)
     maskName = lx.eval('item.name ?')
@@ -113,12 +129,15 @@ def createRoInGroup(maskID, roType):
     lx.out(maskName)
     lx.eval('shader.create renderOutput')
     lx.eval('shader.setEffect {%s}'%roType)
-    alphaName = maskName + '_Alpha'
+    alphaName = maskName + editorColors[roType][0]
     lx.eval('item.name %s'%alphaName)
 
     lx.out(roType)
-    lx.out(editorColors[roType])
-    lx.eval('item.editorColor %s'%editorColors[roType])
+    try:
+        lx.out(editorColors[roType][1])
+        lx.eval('item.editorColor %s'%editorColors[roType][1])
+    except:
+        pass
 
     
 

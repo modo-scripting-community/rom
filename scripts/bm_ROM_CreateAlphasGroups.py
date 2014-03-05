@@ -4,12 +4,12 @@
 #create alpha outputs for selected masks
 
 import traceback
-import bm_Renders_funcs as funcs
+import bm_ROM_funcs as funcs
 
 try:
     selMasks = lx.evalN('query sceneservice selection ? mask')
     saveSel = funcs.saveSel()
-    funcs.ccRomGroup()
+    funcs.ccGroup('ROM')
     for mask in selMasks:
         #create mask in ROM group
         maskInRom = funcs.checkMaskInRom(mask)
